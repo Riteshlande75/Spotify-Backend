@@ -8,7 +8,6 @@
 - cookie-parser (JWT stored in cookie)
 - dotenv
 
-
 ## Prerequisites
 - Node.js installed
 - MongoDB running (local or hosted)
@@ -21,7 +20,6 @@ MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 ```
 
-
 ## Install
 ```bash
 npm install
@@ -32,41 +30,38 @@ npm install
 node server.js
 ```
 
-The server starts on:
-- **http://localhost:3000**
+Server URL:
+- http://localhost:3000
 
 On startup, `server.js` calls the DB connector (`connectDb()`), which connects to MongoDB using `process.env.MONGO_URI`.
 
 ## Project Structure
 ```
 .
-├── server.js            # Starts the server (port 3000) and connects to MongoDB
-├── src/
-│   ├── app.js           # Express app setup (json + cookie-parser + routes)
-│   ├── controller/
-│   │   ├── auth.controller.js
-│   │   └── music.controller.js
-│   ├── models/
-│   │   ├── user.model.js
-│   │   └── music.model.js
-│   ├── routes/
-│   │   ├── auth.route.js
-│   │   └── music.route.js
-│   └── db/
-
-│       └── db.js       # Mongoose connection using MONGO_URI
-├── package.json
-└── .env                 # (create this)
+├── server.js
+└── src/
+    ├── app.js
+    ├── controller/
+    │   ├── auth.controller.js
+    │   └── music.controller.js
+    ├── models/
+    │   ├── user.model.js
+    │   └── music.model.js
+    ├── routes/
+    │   ├── auth.route.js
+    │   └── music.route.js
+    ├── services/
+    │   └── storage.service.js
+    └── db/
+        └── db.js
 ```
 
-
 ## API
+
 ### Register
 `POST /api/auth/register`
 
-Registers a new user.
-
-**Request body** (JSON):
+**Request body (JSON):**
 ```json
 {
   "username": "string",
@@ -82,7 +77,6 @@ On success, the server:
 - signs a JWT using `JWT_SECRET`
 - stores the JWT in a cookie named `token`
 
-## API (Music)
 ### Upload music
 `POST /api/music/upload`
 
@@ -93,10 +87,7 @@ On success, the server:
 - `file` (required): audio file
 - `title` (required): music title
 
-
 ## Notes
-- If `MONGO_URI` is missing or incorrect, DB connection will fail and an error will be logged.
+- Ensure `MONGO_URI` is correct.
 - Ensure `JWT_SECRET` exists in your `.env`.
-
-
 

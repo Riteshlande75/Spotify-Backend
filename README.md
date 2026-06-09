@@ -82,11 +82,17 @@ On success, the server:
 - signs a JWT using `JWT_SECRET`
 - stores the JWT in a cookie named `token`
 
-## API (Music) - WIP
-The music route/controller/model files exist, but the API endpoints are not implemented yet.
+## API (Music)
+### Upload music
+`POST /api/music/upload`
 
-- `POST`/`GET` endpoints for music are not defined in `src/routes/music.route.js` yet.
-- `createModel` in `src/controller/music.controller.js` is currently empty.
+- Uses JWT from cookie named `token`
+- Only users with `role: "artist"` can upload
+
+**Body (multipart/form-data):**
+- `file` (required): audio file
+- `title` (required): music title
+
 
 ## Notes
 - If `MONGO_URI` is missing or incorrect, DB connection will fail and an error will be logged.

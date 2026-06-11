@@ -1,7 +1,8 @@
 const express = require('express');
 const multer = require('multer');
+const authMiddleware = require("../middlewares/auth.middleware");
+const musicController = require("../controller/music.controller");
 
-const musicController = require("../controller/music.controller")
 
 const router = express.Router();
 
@@ -9,7 +10,11 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 // field name must be `file` in the multipart form
-router.post("/upload", upload.single('file'), musicController.createMusic);
+router.post("/upload", authMiddleware.authArtist, upload.single('file'), musicController.createMusic);
+
+router.post("/album", authMiddleware.authArtist, musicController.createAlbum);
+
 
 module.exports = router;
+
 

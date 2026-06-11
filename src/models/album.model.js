@@ -4,21 +4,22 @@ const albumSchema = new mongoose.Schema({
 
     title:{
         type:String,
-        require: true,
+        required: true,
     },
 
     music:[{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "music"
+        ref: "music",
     }],
 
     artist : {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
-        require: true,
+        required: true,
     }
 })
 
-const ablumModel = mongoose.model("album",albumSchema)
+const albumModel = mongoose.model("album",albumSchema)
 
-module.exports = ablumModel;
+module.exports = albumModel;
+

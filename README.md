@@ -90,22 +90,21 @@ On success, the server:
 ### Upload music
 `POST /api/music/upload`
 
-Auth:
+Auth (artist-only):
 - JWT must be present in cookie `token`
 - Only users with `role: "artist"` can upload
 
 Request body (multipart/form-data):
-- `file` (required): audio file
+- `file` (required): audio file (multer field name: `file`)
 - `title` (required): music title
 
-### Create album (implemented in controller)
+### Create album
 `POST /api/music/album`
 
-> The album controller exists (`CreateAlbum`) but the corresponding route is not wired up in `src/routes/music.route.js` yet.
-
-Auth:
+Auth (artist-only):
 - JWT must be present in cookie `token`
 - Only `artist` users can create albums
+
 
 ## Project Structure
 ```
@@ -133,5 +132,7 @@ Auth:
 - Ensure `.env` contains `MONGO_URI` and `JWT_SECRET`.
 - Ensure MongoDB is reachable.
 - For requests that require auth, your HTTP client must send cookies (`token`).
+- Music uploads use `multer` in memory (`req.file.buffer`) and then upload the base64 data to ImageKit.
+
 
 

@@ -1,21 +1,21 @@
 # Spotify-Clone
 
-A simple Spotify-like backend (Node.js + Express + MongoDB) with JWT auth stored in cookies.
+A simple Spotify-like backend (Node.js + Express + MongoDB) with JWT authentication stored in cookies.
 
 ## Tech Stack
 - Node.js (CommonJS)
 - Express.js
 - MongoDB (Mongoose)
-- Authentication: `jsonwebtoken`, `bcryptjs`
+- Auth: `jsonwebtoken`, `bcryptjs`
 - Cookies: `cookie-parser` (JWT stored in cookie named `token`)
 - File upload: `multer` (in-memory)
 - Music storage: ImageKit (via `@imagekit/nodejs`)
-- Environment variables: `dotenv`
+- Env config: `dotenv`
 
 ## Prerequisites
 - Node.js installed
 - MongoDB running (local or hosted)
-- ImageKit account (for music upload)
+- ImageKit account (for music uploads)
 
 ## Environment Variables
 Create a `.env` file in the project root:
@@ -26,11 +26,9 @@ JWT_SECRET=your_jwt_secret
 
 # ImageKit (required by src/services/storage.service.js)
 IMAGE_KIT_PRIVATE_KEY=your_imagekit_private_key
-IMAGE_KIT_PUBLIC_KEY=your_imagekit_public_key
-IMAGE_KIT_URL_ENDPOINT=your_imagekit_url_endpoint
 ```
 
-> Note: `src/services/storage.service.js` currently instantiates ImageKit with `privateKey` only. ImageKit typically also requires public key + URL endpoint—add them to `.env` so you can extend/fix configuration if needed.
+> Note: `src/services/storage.service.js` currently initializes ImageKit using `privateKey` only. If you later update the ImageKit client configuration, you may need additional ImageKit env vars (public key / URL endpoint).
 
 ## Install
 ```bash
@@ -47,7 +45,7 @@ node server.js
 Server URL:
 - http://localhost:3000
 
-On startup, `server.js` starts the Express app on port `3000` and calls `connectDb()` to connect to MongoDB using `process.env.MONGO_URI`.
+On startup, `server.js` runs the Express app on port `3000` and calls `connectDb()` to connect to MongoDB using `process.env.MONGO_URI`.
 
 ## API
 
@@ -60,7 +58,7 @@ Request body (JSON):
   "username": "string",
   "email": "string",
   "password": "string",
-  "role": "user" // optional (default: user)
+  "role": "user" // optional (default: "user")
 }
 ```
 
@@ -94,7 +92,7 @@ Auth (artist-only):
 - JWT must be present in cookie `token`
 - Only users with `role: "artist"` can upload
 
-Request body (multipart/form-data):
+Request body (`multipart/form-data`):
 - `file` (required): audio file (multer field name: `file`)
 - `title` (required): music title
 
@@ -105,25 +103,53 @@ Auth (artist-only):
 - JWT must be present in cookie `token`
 - Only `artist` users can create albums
 
+Request body (JSON):
+```json
+{
+  "title": "string",
+  "musicIds": ["<musicId1>", "<musicId2>"]
+}
+```
+
+### Get all musics
+`GET /api/music/` (requires auth)
+
+Auth (user-only):
+- JWT must be present in cookie `token`
+- Only users with `role: "user"` can access
+
+### Get all albums
+`GET /api/music/album` (requires auth)
+
+Auth (user-only):
+- JWT must be present in cookie `token`
+- Only users with `role: "user"` can access
+
+## Auth / Cookies
+For endpoints protected by `src/middlewares/auth.middleware.js`, your client must send cookies (cookie name: `token`).
+- In Postman / browser fetch/XHR: enable cookie handling / `credentials: 'include'` (if applicable).
 
 ## Project Structure
 ```
 .
 ├── server.js
+├── package.json
 └── src/
     ├── app.js
     ├── controller/
     │   ├── auth.controller.js
     │   └── music.controller.js
-    ├── models/
-    │   ├── album.model.js
-    │   ├── music.model.js
-    │   └── user.model.js
     ├── routes/
     │   ├── auth.route.js
     │   └── music.route.js
     ├── services/
     │   └── storage.service.js
+    ├── models/
+    │   ├── album.model.js
+    │   ├── music.model.js
+    │   └── user.model.js
+    ├── middlewares/
+    │   └── auth.middleware.js
     └── db/
         └── db.js
 ```
@@ -131,8 +157,9 @@ Auth (artist-only):
 ## Notes / Troubleshooting
 - Ensure `.env` contains `MONGO_URI` and `JWT_SECRET`.
 - Ensure MongoDB is reachable.
-- For requests that require auth, your HTTP client must send cookies (`token`).
+- For authenticated requests, the HTTP client must send cookies (`token`).
 - Music uploads use `multer` in memory (`req.file.buffer`) and then upload the base64 data to ImageKit.
+
 
 
 

@@ -28,7 +28,7 @@ JWT_SECRET=your_jwt_secret
 IMAGE_KIT_PRIVATE_KEY=your_imagekit_private_key
 ```
 
-> Note: `src/services/storage.service.js` currently initializes ImageKit using `privateKey` only. If you later update the ImageKit client configuration, you may need additional ImageKit env vars (public key / URL endpoint).
+> Current implementation only uses `IMAGE_KIT_PRIVATE_KEY` when creating the ImageKit client.
 
 ## Install
 ```bash
@@ -85,6 +85,14 @@ On success, the server:
 - signs a JWT using `JWT_SECRET`
 - stores the JWT in a cookie named `token`
 
+> Note: the current controller response JSON has typos in returned user fields (e.g. `user._username`, `emial`). Cookie auth still works.
+
+### Logout
+`POST /api/auth/logout`
+
+Implementation note:
+- The logout handler exists, but the route file currently has a typo (`routet.post`), which may prevent logout from working until fixed.
+
 ### Upload music
 `POST /api/music/upload`
 
@@ -111,23 +119,39 @@ Request body (JSON):
 }
 ```
 
-### Get all musics
-`GET /api/music/` (requires auth)
+### Get musics (paginated)
+`GET /api/music/`
 
 Auth (user-only):
 - JWT must be present in cookie `token`
 - Only users with `role: "user"` can access
 
-### Get all albums
-`GET /api/music/album` (requires auth)
+Current behavior:
+- Uses `.skip(2).limit(2)` when fetching musics.
+
+### Get albums
+`GET /api/music/album`
 
 Auth (user-only):
 - JWT must be present in cookie `token`
 - Only users with `role: "user"` can access
+
+### Get album by id
+`GET /api/music/album/:albumdId`
+
+Auth (user-only):
+- JWT must be present in cookie `token`
+
+Implementation note:
+- URL param is currently named `albumdId` (typo). Also, controller has typos in populate fields (`artits`, `musics`).
 
 ## Auth / Cookies
-For endpoints protected by `src/middlewares/auth.middleware.js`, your client must send cookies (cookie name: `token`).
-- In Postman / browser fetch/XHR: enable cookie handling / `credentials: 'include'` (if applicable).
+Protected endpoints use `src/middlewares/auth.middleware.js`.
+
+- Cookie name: `token`
+- For authenticated requests, your HTTP client must include cookies.
+  - Postman/browser: enable cookie handling
+  - Fetch/XHR: use `credentials: 'include'` (when applicable)
 
 ## Project Structure
 ```
@@ -158,7 +182,9 @@ For endpoints protected by `src/middlewares/auth.middleware.js`, your client mus
 - Ensure `.env` contains `MONGO_URI` and `JWT_SECRET`.
 - Ensure MongoDB is reachable.
 - For authenticated requests, the HTTP client must send cookies (`token`).
-- Music uploads use `multer` in memory (`req.file.buffer`) and then upload the base64 data to ImageKit.
+- Music uploads use `multer` in memory (`req.file.buffer`) and then upload base64 data to ImageKit.
+- If some routes don’t work, check for the known typos mentioned above (`/logout`, album-by-id).
+
 
 
 
